@@ -4,11 +4,18 @@ import com.kategorie.domain.Category;
 import com.kategorie.repository.CategoryRepository;
 import com.kategorie.service.dto.CategoryDTO;
 import com.kategorie.service.mapper.CategoryMapper;
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+
+import com.kategorie.service.specs.CategorySpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +45,7 @@ public class CategoryService {
      */
     public CategoryDTO save(CategoryDTO categoryDTO) {
         LOG.debug("Request to save Category : {}", categoryDTO);
+        categoryDTO.setCreationDate(LocalDate.now());
         Category category = categoryMapper.toEntity(categoryDTO);
         category = categoryRepository.save(category);
         return categoryMapper.toDto(category);
@@ -83,9 +91,25 @@ public class CategoryService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> findAll(Pageable pageable) {
+    public Page<CategoryDTO> findAll(LocalDate createdAfter, LocalDate createdBefore, Boolean isRoot, List<Long> childCategories,
+                                     Pageable pageable) {
+        Specification<Category> specs = Specification.where(null);
+        if (createdAfter != null) {
+            if (createdBefore != null) {
+                specs.and(CategorySpecs.getBetweenDates(createdAfter, createdBefore));
+            }
+            specs.and(CategorySpecs.getBetweenDates(createdAfter, LocalDate.now()));
+        }
+
+        if (isRoot) {
+            specs.and(CategorySpecs.getIsRootSpec());
+        }
+
+        if (childCategories.isEmpty()) {
+            specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
+        }
         LOG.debug("Request to get all Categories");
-        return categoryRepository.findAll(pageable).map(categoryMapper::toDto);
+        return categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
     }
 
     /**
