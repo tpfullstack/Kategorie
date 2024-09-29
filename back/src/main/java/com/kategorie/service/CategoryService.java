@@ -6,6 +6,7 @@ import com.kategorie.service.dto.CategoryDTO;
 import com.kategorie.service.mapper.CategoryMapper;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,22 +92,26 @@ public class CategoryService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> findAll(LocalDate createdAfter, LocalDate createdBefore, Boolean isRoot, List<Long> childCategories,
-                                     Pageable pageable) {
+    public Page<CategoryDTO> findAll(LocalDate createdAfter, LocalDate createdBefore, Boolean isRoot, Long[] childCategories,
+                                     String name, Pageable pageable) {
         Specification<Category> specs = Specification.where(null);
         if (createdAfter != null) {
             if (createdBefore != null) {
-                specs.and(CategorySpecs.getBetweenDates(createdAfter, createdBefore));
+                specs = specs.and(CategorySpecs.getBetweenDates(createdAfter, createdBefore));
             }
-            specs.and(CategorySpecs.getBetweenDates(createdAfter, LocalDate.now()));
+            else specs = specs.and(CategorySpecs.getBetweenDates(createdAfter, LocalDate.now()));
         }
 
-        if (isRoot) {
-            specs.and(CategorySpecs.getIsRootSpec());
+        if (isRoot != null) {
+            specs = specs.and(CategorySpecs.getIsRootSpec());
         }
 
-        if (childCategories.isEmpty()) {
-            specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
+        if (childCategories != null && childCategories.length > 0) {
+            specs = specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
+        }
+
+        if (!name.isBlank()) {
+            specs = specs.and(CategorySpecs.getNameSpec(name));
         }
         LOG.debug("Request to get all Categories");
         return categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
