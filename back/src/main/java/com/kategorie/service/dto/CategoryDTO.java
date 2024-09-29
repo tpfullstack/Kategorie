@@ -19,6 +19,8 @@ public class CategoryDTO implements Serializable {
 
     private LocalDate creationDate;
 
+    private CategoryDTO parentCategory;
+
     public Long getId() {
         return id;
     }
@@ -41,6 +43,14 @@ public class CategoryDTO implements Serializable {
 
     public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public CategoryDTO getParentCategory() {
+        return parentCategory;
+    }
+
+    public void setParentCategory(CategoryDTO parentCategory) {
+        this.parentCategory = parentCategory;
     }
 
     @Override
@@ -71,6 +81,7 @@ public class CategoryDTO implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", creationDate='" + getCreationDate() + "'" +
+            ", parentCategory=" + getParentCategory() +
             "}";
     }
 }

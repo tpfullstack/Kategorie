@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -142,9 +144,13 @@ public class CategoryResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of categories in body.
      */
     @GetMapping("")
-    public ResponseEntity<List<CategoryDTO>> getAllCategories(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<CategoryDTO>> getAllCategories(@org.springdoc.core.annotations.ParameterObject Pageable pageable,
+                                                              LocalDate createdAfter,
+                                                              LocalDate createdBefore,
+                                                              Boolean isRoot,
+                                                              ArrayList<Long> childCategories) {
         LOG.debug("REST request to get a page of Categories");
-        Page<CategoryDTO> page = categoryService.findAll(pageable);
+        Page<CategoryDTO> page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -19,7 +19,16 @@
   "name": "Category",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "category",
+      "otherEntityRelationshipName": "childCategories",
+      "relationshipName": "parentCategory",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "searchEngine": "no",
   "service": "serviceClass"
 }
