@@ -9,10 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,9 +146,10 @@ public class CategoryResource {
                                                               LocalDate createdAfter,
                                                               LocalDate createdBefore,
                                                               Boolean isRoot,
-                                                              ArrayList<Long> childCategories) {
+                                                              Long[] childCategories,
+                                                              String name) {
         LOG.debug("REST request to get a page of Categories");
-        Page<CategoryDTO> page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, pageable);
+        Page<CategoryDTO> page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, name.toLowerCase(Locale.ROOT), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -20,13 +20,13 @@ public class CategorySpecs {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id);
     }
 
-    public static Specification<Category> getChildCategoriesSpecs(List<Long> childCategories) {
+    public static Specification<Category> getChildCategoriesSpecs(Long[] childCategories) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<Category, Category> categoryJoin = root.join(Category_.childCategories);
 
-            Predicate[] predicates = new Predicate[childCategories.size()];
-            for (int i = 0; i < childCategories.size(); i++) {
-                predicates[i] = criteriaBuilder.equal(categoryJoin.get("id"), childCategories.get(i));
+            Predicate[] predicates = new Predicate[childCategories.length];
+            for (int i = 0; i < childCategories.length; i++) {
+                predicates[i] = criteriaBuilder.equal(categoryJoin.get("id"), childCategories[i]);
             }
 
             return criteriaBuilder.or(predicates);
@@ -44,6 +44,5 @@ public class CategorySpecs {
     public static Specification<Category> getBetweenDates(LocalDate afterDate, LocalDate beforeDate) {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.between(root.get(Category_.CREATION_DATE), afterDate, beforeDate);
     }
-
 
 }
