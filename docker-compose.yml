@@ -1,0 +1,77 @@
+version: "3.8"
+services:
+  db:
+    image: postgres
+    container_name: postgres-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: kategorie
+      POSTGRES_PASSWORD: kategorie
+    volumes:
+      - $HOME/docker_volumes/postgres:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: kategorie@dev.com
+      PGADMIN_DEFAULT_PASSWORD: kategorie
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+    user: '$UID:$GID'
+    volumes:
+      - $HOME/docker_volumes/pgadmin:/var/lib/pgadmin
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    command: 'start-dev --import-realm'
+    volumes:
+      - ./realm-config:/opt/keycloak/data/import
+      - ./realm-config/keycloak-health-check.sh:/opt/keycloak/health-check.sh
+    environment:
+      - KC_DB=dev-file
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_FEATURES=scripts
+      - KC_HTTP_PORT=9080
+      - KC_HTTPS_PORT=9443
+      - KC_HEALTH_ENABLED=true
+      - KC_HTTP_MANAGEMENT_PORT=9990
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:9080:9080
+      - 127.0.0.1:9443:9443
+    healthcheck:
+      test: 'bash /opt/keycloak/health-check.sh'
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 10s
+
+  back:
+    image: kategorie:0.0.1-SNAPSHOT14
+    container_name: back
+    depends_on:
+      - db
+      - keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      LOGGING_LEVEL_ROOT: INFO
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/kategorie
+      SPRING_DATASOURCE_USER: kategorie
+      SPRING_DATASOURCE_PASSWORD: kategorie
+#  back:
+#    image:
+#    container_name: back
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATASOURCE_USER: kategorie
+#      SPRING_DATASOURCE_PASSWORD: kategorie
