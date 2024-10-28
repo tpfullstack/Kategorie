@@ -1,0 +1,26 @@
+<div class="p-3">
+  <form class="w-75 m-auto" [formGroup]="categorieForm" (ngSubmit)="submitAdd()">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input #name formControlName='name' type="text" id="name" class="form-control">
+      <span
+        *ngIf="controls['name'].touched && (controls['name'].invalid)">Not
+        valid</span>
+    </div>
+    <div class="mb-3">
+      <label for="parent" class="form-label">Parent</label>
+      <input #parent formControlName='parent' type="text" id="parent" class="form-control">
+      <span
+        *ngIf="controls['parent'].touched && (controls['parent'].invalid)">Not
+        valid</span>
+    </div>
+    <div class="mb-3">
+      <label for="date" class="form-label">Date</label>
+      <input #date formControlName='date' type="date" id="date" class="form-control">
+      <span
+        *ngIf="controls['date'].touched && (controls['date'].invalid)">Not
+        valid</span>
+    </div>
+    <button type="submit" class="button bg-second-brown text-white">Add</button>
+  </form>
+</div>

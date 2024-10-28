@@ -1,0 +1,15 @@
+.error-parent {
+  height: calc(100vh - 150px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: #f6e2ff73; */
+  border-radius: 10px;
+}
+.container>div>h2 {
+  font-size: 4rem;
+}
+.container>div>h1 {
+  font-size: 1.5rem;
+}

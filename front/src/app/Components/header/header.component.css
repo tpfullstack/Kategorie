@@ -1,0 +1,10 @@
+.parent {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+}
+a[routerLink="/"] {
+  text-decoration: none;
+  color: unset;
+}
