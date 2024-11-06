@@ -43,7 +43,20 @@ export class CategoriesComponent implements OnInit {
 
     return filtered;
   }
-
+  deleteCategorie(id: number) {
+    Swal.fire({
+      title: 'Are you sure?',
+      showCancelButton: true,
+      confirmButtonColor: '#8a0613',
+      cancelButtonColor: '#64379f',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.service.deleteCategorie(id);
+        this.categories = this.categories.filter((s: any) => s.id !== id); // Mise à jour après suppression
+      }
+    });
+  }
   // Appliquer le filtre
   applyFilter() {
     this.filteredCategories();

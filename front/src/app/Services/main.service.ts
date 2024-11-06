@@ -39,4 +39,11 @@ export class MainService {
   getAllCategories(){
     return this.categories;
   }
+  // Simuler la méthode deleteCategorie
+  deleteCategorie(id: number){
+    const index = this.categories.findIndex(categorie => categorie.id === id);
+    if (index > -1) {
+      this.categories.splice(index, 1);
+    }
+  }
 }
