@@ -7,6 +7,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { CategoriesComponent } from './Components/categories/categories.component';
 
+import { HeaderComponent } from './Components/header/header.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoaderInterceptor } from './core/helpers/loader.interceptor';
@@ -14,7 +15,8 @@ import { LoaderInterceptor } from './core/helpers/loader.interceptor';
 @NgModule({
   declarations: [
     AppComponent,
-    CategoriesComponent
+    CategoriesComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
