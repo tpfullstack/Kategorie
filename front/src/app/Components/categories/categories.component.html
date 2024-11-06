@@ -6,9 +6,11 @@
 
   <!-- Menu déroulant pour les filtres -->
   <select class="form-select w-25 ms-2" [(ngModel)]="selectedFilter" >
-    <option value="">-- Filter by --</option>
-    <option value="date">Date</option>
-    <option value="alphabet">Alphabet</option>
+    <option value="">--- Sorte by ---</option>
+    <option value="date">Date Of Creation</option>
+    <option value="name">Name</option>
+    <option value="name">Subcategory</option>
+    <option value="name">Parent Category</option>
     <!-- Ajoutez d'autres options de filtre si nécessaire -->
   </select>
   <a class="button bg-offwhite-second hover-brown text-white" routerLink="/addcategorie">Add</a>

@@ -37,7 +37,7 @@ export class CategoriesComponent implements OnInit {
     if (this.selectedFilter === 'date') {
       return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    if (this.selectedFilter === 'alphabet') {
+    if (this.selectedFilter === 'name') {
       return filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
 
