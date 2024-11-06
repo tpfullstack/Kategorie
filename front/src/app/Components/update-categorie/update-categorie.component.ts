@@ -34,6 +34,9 @@ export class UpdateCategorieComponent implements OnInit {
       parent: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
       date: ['', [Validators.required]],
     });
+
+    // Désactiver le champ "date" après l'initialisation du formulaire
+    this.categorieForm.get('date')?.disable();
   }
 
   getCategorieById(id: number) {
@@ -46,6 +49,7 @@ export class UpdateCategorieComponent implements OnInit {
       });
     }
   }
+
   deleteCategorie() {
     Swal.fire({
       title: 'Are you sure?',
@@ -60,6 +64,7 @@ export class UpdateCategorieComponent implements OnInit {
       }
     });
   }
+
   submitUpdate() {
     if (this.categorieForm.valid) {
       this.service.updateCategorie(this.categorieId, this.categorieForm.value);
