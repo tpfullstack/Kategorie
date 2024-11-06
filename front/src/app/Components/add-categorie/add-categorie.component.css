@@ -1,0 +1,20 @@
+
+form > div > span{
+    color: red;
+    position: absolute;
+    top: 72%;
+    right: 20px;
+    transform: translateY(-50%);
+  }
+  
+  form > div {
+    position: relative;
+  }
+  
+  input.ng-touched.ng-invalid {
+    border: 1px solid red;
+  }
+  
+  /* input.ng-touched.ng-valid {
+    border: 1px solid var(--brown);
+  } */

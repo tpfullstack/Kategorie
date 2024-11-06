@@ -6,6 +6,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 // Components
 import { AppComponent } from './app.component';
 import { CategoriesComponent } from './Components/categories/categories.component';
+import { AddCategorieComponent } from './Components/add-categorie/add-categorie.component';
 
 import { HeaderComponent } from './Components/header/header.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -16,6 +17,7 @@ import { LoaderInterceptor } from './core/helpers/loader.interceptor';
   declarations: [
     AppComponent,
     CategoriesComponent,
+    AddCategorieComponent,
     HeaderComponent
   ],
   imports: [

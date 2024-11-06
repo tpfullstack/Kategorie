@@ -46,4 +46,21 @@ export class MainService {
       this.categories.splice(index, 1);
     }
   }
+
+  // Simuler la méthode getCategorieById
+  getCategorieById(id: number){
+    return this.categories.find(categorie => categorie.id === id);
+  }
+   // Simuler la méthode addCategorie
+   addCategorie(newCategorie: any){
+    this.categories.push(newCategorie);
+  }
+    // Simuler la méthode updateCategorie
+  updateCategorie(id: number, updatedCategorie: any){
+    const index = this.categories.findIndex(categorie => categorie.id === id);
+    if (index > -1) {
+      this.categories[index] = { ...this.categories[index], ...updatedCategorie };
+    }
+  }
+
 }
