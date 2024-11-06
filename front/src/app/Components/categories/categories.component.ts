@@ -47,9 +47,9 @@ export class CategoriesComponent implements OnInit {
     Swal.fire({
       title: 'Are you sure?',
       showCancelButton: true,
-      confirmButtonColor: '#8a0613',
-      cancelButtonColor: '#64379f',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: '#016017',
+      cancelButtonColor: '#8a0613',
+      confirmButtonText: 'Yes'
     }).then((result) => {
       if (result.isConfirmed) {
         this.service.deleteCategorie(id);

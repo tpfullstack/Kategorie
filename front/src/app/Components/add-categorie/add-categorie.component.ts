@@ -69,9 +69,8 @@ export class AddCategorieComponent implements OnInit {
         Swal.fire({
           position: 'center',
           icon: 'success',
-          title: 'Categorie has been Added',
-          showConfirmButton: false,
-          timer: 1500
+          title: 'Category has been Added',
+          confirmButtonColor: '#016017',
         });
         this.router.navigateByUrl("categories");
       } else {
@@ -82,9 +81,8 @@ export class AddCategorieComponent implements OnInit {
         this.service.updateCategorie(this.categorieId, this.categorieForm.value);
         Swal.fire({
           position: 'center',
-          title: 'Categorie has been Updated',
+          title: 'Category has been Updated',
           showConfirmButton: false,
-          timer: 1500
         });
       } else {
         this.showErrorAlert('update');
@@ -94,7 +92,8 @@ export class AddCategorieComponent implements OnInit {
 
   showErrorAlert(action: string) {
     Swal.fire({
-      text: `Can't ${action}, check the data again`,
+      text: `Error, can't ${action}.`,
+      confirmButtonColor: '#8a0613',
     });
   }
 }
