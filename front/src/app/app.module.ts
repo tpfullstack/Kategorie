@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { CategoriesComponent } from './Components/categories/categories.component';
 import { AddCategorieComponent } from './Components/add-categorie/add-categorie.component';
 import { DetailsCategorieComponent } from './Components/details-categorie/details-categorie.component';
+import { UpdateCategorieComponent } from './Components/update-categorie/update-categorie.component';
 
 import { HeaderComponent } from './Components/header/header.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -20,6 +21,7 @@ import { LoaderInterceptor } from './core/helpers/loader.interceptor';
     CategoriesComponent,
     AddCategorieComponent,
     DetailsCategorieComponent,
+    UpdateCategorieComponent,
     HeaderComponent
   ],
   imports: [
