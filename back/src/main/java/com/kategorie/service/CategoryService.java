@@ -18,8 +18,10 @@ import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Service Implementation for managing {@link com.kategorie.domain.Category}.
@@ -150,12 +152,13 @@ public class CategoryService {
     public void delete(Long id) {
         LOG.debug("Request to delete Category : {}", id);
         if (categoryRepository.findById(id).isPresent()) {
-            if (categoryRepository.findById(id).get().getChildCategories().isEmpty())
+            if (categoryRepository.findById(id).orElseThrow(() ->
+                new HttpClientErrorException(HttpStatusCode.valueOf(404))).getChildCategories().isEmpty())
                 categoryRepository.deleteById(id);
             else {
-                categoryRepository.findById(id).get().getChildCategories().stream().forEach(childCategory -> {
-                    updateChildrenToOrphans(childCategory);
-                });
+                categoryRepository.findById(id).orElseThrow(() ->
+                    new HttpClientErrorException(HttpStatusCode.valueOf(404))).getChildCategories().
+                    forEach(this::updateChildrenToOrphans);
                 categoryRepository.deleteById(id);
             }
         }
@@ -165,6 +168,4 @@ public class CategoryService {
         category.setParentCategory(null);
         categoryRepository.save(category);
     }
-
-
 }
