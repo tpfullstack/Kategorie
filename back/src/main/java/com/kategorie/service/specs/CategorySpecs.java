@@ -37,8 +37,12 @@ public class CategorySpecs {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get(Category_.name)), "%" + name + "%");
     }
 
-    public static Specification<Category> getIsRootSpec() {
-        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Category_.PARENT_CATEGORY));
+    public static Specification<Category> getIsRootSpec(Boolean isRoot) {
+        if (isRoot == null) return null; // No filtering if not specified
+        return (root, query, builder) ->
+            isRoot
+                ? builder.isNull(root.get(Category_.PARENT_CATEGORY))
+                : builder.isNotNull(root.get(Category_.PARENT_CATEGORY));
     }
 
     public static Specification<Category> getBetweenDates(LocalDate afterDate, LocalDate beforeDate) {
