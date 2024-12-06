@@ -1,9 +1,9 @@
-version: "3.8"
 services:
   db:
     image: postgres
     container_name: postgres-db
     restart: always
+    network_mode: host
     ports:
       - "5432:5432"
     environment:
@@ -15,6 +15,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4_container
+    network_mode: host
     restart: always
     ports:
       - "8888:80"
@@ -29,6 +30,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.1
     command: 'start-dev --import-realm'
+    network_mode: host
     volumes:
       - ./realm-config:/opt/keycloak/data/import
       - ./realm-config/keycloak-health-check.sh:/opt/keycloak/health-check.sh
@@ -44,8 +46,8 @@ services:
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:
-      - 127.0.0.1:9080:9080
-      - 127.0.0.1:9443:9443
+      - "9080:9080"
+      - "9443:9443"
     healthcheck:
       test: 'bash /opt/keycloak/health-check.sh'
       interval: 5s
@@ -54,24 +56,29 @@ services:
       start_period: 10s
 
   back:
-    image: kategorie:0.0.1-SNAPSHOT14
+    build:
+     context: ./back
+     dockerfile: Dockerfile
     container_name: back
+    restart: always
+    network_mode: host
     depends_on:
       - db
       - keycloak
     ports:
       - "8080:8080"
     environment:
-      LOGGING_LEVEL_ROOT: INFO
-      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/kategorie
+      LOGGING_LEVEL_ROOT: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://localhost:9080/realms/jhipster
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/kategorie
       SPRING_DATASOURCE_USER: kategorie
       SPRING_DATASOURCE_PASSWORD: kategorie
-#  back:
-#    image:
-#    container_name: back
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      SPRING_DATASOURCE_USER: kategorie
-#      SPRING_DATASOURCE_PASSWORD: kategorie
+  front:
+    container_name: kategorie-front
+    network_mode: host
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
