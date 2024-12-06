@@ -1,52 +1,59 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="text-brown">Categories</h2>
-  
-  <!-- Input pour la recherche -->
-  <input type="text" class="form-control w-25" placeholder="Search Categories..." [(ngModel)]="searchTerm" />
-
-  <!-- Menu déroulant pour les filtres -->
-  <select class="form-select w-25 ms-2" [(ngModel)]="selectedFilter" >
-    <option value="">--- Sorte by ---</option>
-    <option value="date">Date Of Creation</option>
-    <option value="name">Name</option>
-    <option value="name">Subcategory</option>
-    <option value="name">Parent Category</option>
-    <!-- Ajoutez d'autres options de filtre si nécessaire -->
-  </select>
-  <a class="button bg-offwhite-second hover-brown text-white" routerLink="/addcategorie">Add</a>
+  <div class="filter-section">
+    <input type="text" class="form-control" placeholder="Search Categories..." [(ngModel)]="searchTerm" (input)="applyFilter()">
+    <input type="date" [(ngModel)]="createdAfter" (change)="applyFilter()" placeholder="Created after">
+    <input type="date" [(ngModel)]="createdBefore" (change)="applyFilter()" placeholder="Created before">
+    <select [(ngModel)]="isRoot" (change)="applyFilter()">
+      <option [ngValue]="null">All Categories</option>
+      <option [ngValue]="true">Root Categories</option>
+      <option [ngValue]="false">Child Categories</option>
+    </select>
+    <button class="btn btn-secondary" (click)="resetFilters()">Reset Filters</button>
+  </div>
+  <a class="button bg-offwhite-second hover-brown text-white" routerLink="/addcategory">Add</a>
 </div>
 
-<!-- Tableau des catégories -->
 <div *ngIf="categories.length > 0" class="border-10">
   <table class="table table-striped">
     <thead>
       <tr>
-        <th scope="col" class="w-15">Name</th>
+        <th scope="col" class="w-15 sortable" (click)="sortBy('name')">Name {{getSortIcon('name')}}</th>
         <th>Parent</th>
-        <th>Date of creation</th>
+        <th class="sortable" (click)="sortBy('creationDate')">Date de création {{getSortIcon('creationDate')}}</th>
+        <th>Catégories enfants</th>
+        <th class="sortable" (click)="sortBy('numberOfChildren')">Nombre de catégories enfants {{getSortIcon('numberOfChildren')}}</th>
         <th>Details</th>
         <th>Update</th>
         <th>Delete</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of filteredCategories()">
-        <td><span>{{s.name}}</span></td>
-        <td>{{s.parent}}</td>
-        <td>{{s.date}}</td>
+      <tr *ngFor="let category of categories">
+        <td><span>{{category.name}}</span></td>
+        <td>{{category.parentCategory ? category.parentCategory.name : '/'}}</td>
+        <td>{{category.creationDate | date:'dd-MM-yyyy'}}</td>
         <td>
-          <a routerLink="/categories/{{s.id}}" class="btn btn-primary">Details</a>
+          <ul *ngIf="category.children && category.children.length > 0">
+            <li *ngFor="let child of category.children">{{child.name}}</li>
+          </ul>
+          <span *ngIf="!category.children || category.children.length === 0">No children</span>
+        </td>
+        <td>{{category.numberOfChildren}}</td>
+        <td>
+          <a [routerLink]="['/categories', category.id]" class="btn btn-primary">Details</a>
         </td>
         <td>
-          <a routerLink="/update/{{s.id}}" class="btn btn-success">Update</a>
+          <a [routerLink]="['/update', category.id]" class="btn btn-success">Update</a>
         </td>
         <td>
-          <a (click)="deleteCategorie(s.id)" class="btn btn-danger">Delete</a>
+          <button (click)="deleteCategory(category.id)" class="btn btn-danger">Delete</button>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
+
 <div *ngIf="categories.length === 0">
   <p>No categories available.</p>
 </div>

@@ -9,7 +9,7 @@ const routes: Routes = [
   {path:'', redirectTo:"categories", pathMatch: "full" },
   {path:'categories', component: CategoriesComponent },
   {path:'categories/:id', component: DetailsCategorieComponent },
-  {path:'addcategorie', component: AddCategorieComponent },
+  {path:'addcategory', component: AddCategorieComponent },
   {path:'update/:id', component: UpdateCategorieComponent },
 ];
 

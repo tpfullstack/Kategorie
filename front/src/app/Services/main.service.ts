@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { from, Observable, of, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MainService {
+
 
   // Liste de catégories simulée
   private readonly categories = [
@@ -33,7 +37,25 @@ export class MainService {
     }
   ];
 
-  constructor() {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
+
+  private getAuthHeaders(): Observable<HttpHeaders> {
+    return from(this.authService.getToken()).pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+        return of(headers);
+      })
+    );
+  }
+
+  // Example of a protected API call
+  getProtectedData(): Observable<any> {
+    return this.getAuthHeaders().pipe(
+      switchMap(headers => {
+        return this.http.get('http://localhost:8080/api/categories/3', { headers });
+      })
+    );
+  }
 
   // Simuler la méthode getAllCategories
   getAllCategories(){

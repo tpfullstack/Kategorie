@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MainService } from 'src/app/Services/main.service';
+import { CategoriesService, CategoryDTO } from '../../Services/categories.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -10,13 +10,12 @@ import Swal from 'sweetalert2';
   styleUrls: ['./details-categorie.component.css']
 })
 export class DetailsCategorieComponent implements OnInit {
-
   categorieForm!: FormGroup;
   categorieId!: number;
-  categorie: any = null;
+  categorie: CategoryDTO | null = null;
 
   constructor(
-    private service: MainService,
+    private categoriesService: CategoriesService,
     public router: Router,
     private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute
@@ -25,54 +24,61 @@ export class DetailsCategorieComponent implements OnInit {
   ngOnInit(): void {
     this.categorieId = +this.activatedRoute.snapshot.params['id'];
     this.initForm();
-    this.getCategorieById(this.categorieId);
+    this.getCategoryById(this.categorieId);
   }
 
   initForm() {
     this.categorieForm = this.formBuilder.group({
       name: [{ value: '', disabled: true }, [Validators.required]],
-      parent: [{ value: '', disabled: true }, [Validators.required]],
-      date: [{ value: '', disabled: true }, [Validators.required]],
+      parentCategory: [{ value: '', disabled: true }],
+      creationDate: [{ value: '', disabled: true }, [Validators.required]],
     });
   }
 
-  getCategorieById(id: number) {
-    this.categorie = this.service.getCategorieById(id);
-    if (this.categorie) {
-      const formattedDate = this.formatDate(this.categorie.date);
-      setTimeout(() => {
+  getCategoryById(id: number) {
+    this.categoriesService.getCategoryById(id).subscribe(
+      (category: CategoryDTO) => {
+        this.categorie = category;
         this.categorieForm.patchValue({
-          name: this.categorie.name,
-          parent: this.categorie.parent,
-          date: formattedDate
+          name: category.name,
+          parentCategory: category.parentCategory ? category.parentCategory.name : 'N/A',
+          creationDate: category.creationDate
         });
-      }, 100); // Délai léger pour assurer la mise à jour
-    } else {
-      Swal.fire({
-        title: 'Oops...',
-        text: 'Categorie not found!',
-        footer: '<a href="/categories">Back to Categories</a>'
-      });
-    }
+      },
+      (error) => {
+        console.error('Error fetching category:', error);
+        Swal.fire({
+          title: 'Oops...',
+          text: 'Category not found!',
+          icon: 'error',
+          footer: '<a href="/categories">Back to Categories</a>'
+        });
+      }
+    );
   }
 
-  deleteCategorie() {
+  deleteCategory() {
     Swal.fire({
       title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#016017',
       cancelButtonColor: '#8a0613',
-      confirmButtonText: 'Yes'
+      confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.deleteCategorie(this.categorieId);
-        this.router.navigate(['categories']);
+        this.categoriesService.deleteCategory(this.categorieId).subscribe(
+          () => {
+            Swal.fire('Deleted!', 'The category has been deleted.', 'success');
+            this.router.navigate(['/categories']);
+          },
+          (error) => {
+            console.error('Error deleting category:', error);
+            Swal.fire('Error!', 'Failed to delete the category.', 'error');
+          }
+        );
       }
     });
   }
-  // Fonction pour convertir la date au format YYYY-MM-DD
-  formatDate(date: string): string {
-     const [day, month, year] = date.split('-');
-     return `${year}-${month}-${day}`;
-}
 }

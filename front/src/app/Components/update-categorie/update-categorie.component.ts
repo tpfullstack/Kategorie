@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MainService } from 'src/app/Services/main.service';
+import { CategoriesService, CategoryDTO } from '../../Services/categories.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,44 +13,60 @@ export class UpdateCategorieComponent implements OnInit {
 
   categorieForm!: FormGroup;
   categorieId!: number;
-  categorie: any;
+  categorie?: CategoryDTO;
+  parentCategories: CategoryDTO[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
-    private service: MainService,
+    private service: CategoriesService,
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.categorieId = +this.activatedRoute.snapshot.params['id'];
+    this.loadParentCategories();
     this.initForm();
-    this.getCategorieById(this.categorieId);
+    this.getCategoryById(this.categorieId);
+  }
+  
+  loadParentCategories() {
+    this.service.getAllCategories({}).subscribe(
+      (categories) => {
+        this.parentCategories = categories.filter(c => c.id !== this.categorieId);
+      },
+      (error) => {
+        console.error('Error loading parent categories:', error);
+      }
+    );
   }
 
   initForm() {
     this.categorieForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      parent: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
-      date: ['', [Validators.required]],
+      parentCategory: [''],
+      creationDate: [{value: '', disabled: true}],
     });
-
-    // Désactiver le champ "date" après l'initialisation du formulaire
-    this.categorieForm.get('date')?.disable();
   }
 
-  getCategorieById(id: number) {
-    this.categorie = this.service.getCategorieById(id);
-    if (this.categorie) {
-      this.categorieForm.patchValue({
-        name: this.categorie.name,
-        parent: this.categorie.parent,
-        date: this.categorie.date
-      });
-    }
+  getCategoryById(id: number) {
+    this.service.getCategoryById(id).subscribe(
+      (category) => {
+        this.categorie = category;
+        this.categorieForm.patchValue({
+          name: category.name,
+          parentCategory: category.parentCategory?.id,
+          creationDate: category.creationDate
+        });
+      },
+      (error) => {
+        console.error('Error fetching category:', error);
+        Swal.fire('Error', 'Failed to load category', 'error');
+      }
+    );
   }
 
-  deleteCategorie() {
+  deleteCategory() {
     Swal.fire({
       title: 'Are you sure?',
       showCancelButton: true,
@@ -59,31 +75,51 @@ export class UpdateCategorieComponent implements OnInit {
       confirmButtonText: 'Yes'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.deleteCategorie(this.categorieId);
-        this.router.navigate(['categories']);
+        this.service.deleteCategory(this.categorieId).subscribe(
+          () => {
+            this.router.navigate(['categories']);
+          },
+          (error) => {
+            console.error('Error deleting category:', error);
+            Swal.fire('Error', 'Failed to delete category', 'error');
+          }
+        );
       }
     });
   }
-
+  
   submitUpdate() {
     if (this.categorieForm.valid) {
-      this.service.updateCategorie(this.categorieId, this.categorieForm.value);
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'Category has been Updated',
-        confirmButtonColor: '#016017',
-      });
-      this.router.navigateByUrl("categories");
+      const updatedCategory: Partial<CategoryDTO> = {
+        id: this.categorie?.id,
+        name: this.categorieForm.get('name')?.value,
+        parentCategory: this.categorieForm.get('parentCategory')?.value ? 
+          { id: this.categorieForm.get('parentCategory')?.value, name: '' } as CategoryDTO : undefined
+      };
+  
+      this.service.updateCategory(this.categorieId, updatedCategory).subscribe(
+        (updatedCat) => {
+          Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Category has been Updated',
+            confirmButtonColor: '#016017',
+          });
+          this.router.navigateByUrl("categories");
+        },
+        (error) => {
+          console.error('Error updating category:', error);
+          Swal.fire({
+            text: "Error, can't update.",
+            confirmButtonColor: '#8a0613',
+          });
+        }
+      );
     } else {
       Swal.fire({
-        text: "Error, can't update.",
+        text: "Please fill in all required fields correctly.",
         confirmButtonColor: '#8a0613',
       });
     }
-  }
-
-  get controls() {
-    return this.categorieForm.controls;
   }
 }

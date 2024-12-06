@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MainService } from 'src/app/Services/main.service';
+import { CategoriesService, CategoryDTO } from '../../Services/categories.service';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-categories',
@@ -8,67 +9,116 @@ import Swal from 'sweetalert2';
   styleUrls: ['./categories.component.css']
 })
 export class CategoriesComponent implements OnInit {
-  categories: any[] = [];
-  deleteShow: boolean = false;
-  deleteAnswer: boolean = false;
+  categories: CategoryDTO[] = [];
   searchTerm: string = '';
-  selectedFilter: string = ''; 
+  currentPage = 0;
+  pageSize = 20;
+  createdAfter: string = '';
+  createdBefore: string = '';
+  isRoot: boolean | null = null;
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
-  constructor(public service: MainService) {}
+  constructor(private categoriesService: CategoriesService) {}
 
   ngOnInit(): void {
-    this.get_All_Categories();
+    this.loadCategories();
   }
 
+  loadCategories() {
+    const params = {
+      page: this.currentPage,
+      size: this.pageSize,
+      sort: this.sortColumn ? `${this.sortColumn},${this.sortDirection}` : '',
+      createdAfter: this.createdAfter,
+      createdBefore: this.createdBefore,
+      isRoot: this.isRoot,
+      name: this.searchTerm
+    };
 
-  get_All_Categories() {
-    this.categories = this.service.getAllCategories();
-  }
-
-  // Filtrer les catégories en fonction de la recherche et du filtre sélectionné
-  filteredCategories() {
-    let filtered = this.categories.filter(categorie =>
-      categorie.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      categorie.parent.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      categorie.date.includes(this.searchTerm)
+    this.categoriesService.getAllCategories(params).subscribe(
+      (data: CategoryDTO[]) => {
+        this.categories = data;
+        this.fetchChildrenForCategories();
+      },
+      (error) => {
+        console.error('Error fetching categories:', error);
+        Swal.fire('Error', 'Failed to load categories', 'error');
+      }
     );
-
-    // Trier selon le filtre sélectionné
-    if (this.selectedFilter === 'date') {
-      return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }
-    if (this.selectedFilter === 'name') {
-      return filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    return filtered;
   }
-  deleteCategorie(id: number) {
+
+  deleteCategory(id: number) {
     Swal.fire({
       title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#016017',
       cancelButtonColor: '#8a0613',
-      confirmButtonText: 'Yes'
+      confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.deleteCategorie(id);
-        this.categories = this.categories.filter((s: any) => s.id !== id); // Mise à jour après suppression
+        this.categoriesService.deleteCategory(id).subscribe(
+          () => {
+            this.categories = this.categories.filter(c => c.id !== id);
+            Swal.fire('Deleted!', 'The category has been deleted.', 'success');
+          },
+          (error) => {
+            console.error('Error deleting category:', error);
+            Swal.fire('Error!', 'Failed to delete the category.', 'error');
+          }
+        );
       }
     });
   }
-  // Appliquer le filtre
+
   applyFilter() {
-    this.filteredCategories();
+    this.currentPage = 0;
+    this.loadCategories();
   }
 
-  clickYes() {
-    this.deleteAnswer = true;
-    this.deleteShow = false;
+  fetchChildrenForCategories() {
+    const childrenRequests = this.categories.map(category => 
+      this.categoriesService.getCategoryChildren(category.id!)
+    );
+    forkJoin(childrenRequests).subscribe(
+      (childrenArrays: CategoryDTO[][]) => {
+        this.categories.forEach((category, index) => {
+          category.children = childrenArrays[index];
+        });
+      },
+      (error) => {
+        console.error('Error fetching children:', error);
+        Swal.fire('Error', 'Failed to fetch category children', 'error');
+      }
+    );
   }
 
-  clickNo() {
-    this.deleteAnswer = false;
-    this.deleteShow = false;
+  sortBy(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.loadCategories();
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn === column) {
+      return this.sortDirection === 'asc' ? '▲' : '▼';
+    }
+    return '';
+  }
+
+  resetFilters() {
+    this.searchTerm = '';
+    this.createdAfter = '';
+    this.createdBefore = '';
+    this.isRoot = null;
+    this.sortColumn = '';
+    this.sortDirection = 'asc';
+    this.loadCategories();
   }
 }
