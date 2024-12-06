@@ -64,7 +64,7 @@ public class CategoryService {
     public CategoryDTO update(CategoryDTO categoryDTO) {
         LOG.debug("Request to update Category : {}", categoryDTO);
         Category category = categoryMapper.toEntity(categoryDTO);
-        categoryDTO.setCreationDate(categoryRepository.findById(categoryDTO.getId()).orElseThrow().getCreationDate());
+        category.setCreationDate(categoryRepository.findById(categoryDTO.getId()).orElseThrow().getCreationDate());
         category = categoryRepository.save(category);
         return categoryMapper.toDto(category);
     }
