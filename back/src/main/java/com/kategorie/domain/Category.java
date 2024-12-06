@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Formula;
 
 /**
  * A Category.
@@ -43,6 +44,9 @@ public class Category implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "parentCategory", "childCategories" }, allowSetters = true)
     private Set<Category> childCategories = new HashSet<>();
+
+    @Formula("(SELECT COUNT(c.id) FROM category c WHERE c.parent_category_id = id)")
+    private int numberOfChildren;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -129,6 +133,10 @@ public class Category implements Serializable {
         return this;
     }
 
+    public int getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -155,6 +163,8 @@ public class Category implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", creationDate='" + getCreationDate() + "'" +
+            ", parentCategory='" + getParentCategory() + "'" +
+            ", numberOfChildren='" + getNumberOfChildren() + "'" +
             "}";
     }
 }

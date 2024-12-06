@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.kategorie.service.specs.CategorySpecs;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.Local;
@@ -103,14 +104,14 @@ public class CategoryService {
         }
 
         if (isRoot != null) {
-            specs = specs.and(CategorySpecs.getIsRootSpec());
+            specs = specs.and(CategorySpecs.getIsRootSpec(isRoot));
         }
 
         if (childCategories != null && childCategories.length > 0) {
             specs = specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
         }
 
-        if (!name.isBlank()) {
+        if (!StringUtils.isBlank(name)) {
             specs = specs.and(CategorySpecs.getNameSpec(name));
         }
         LOG.debug("Request to get all Categories");
@@ -130,12 +131,40 @@ public class CategoryService {
     }
 
     /**
+     * Get category children by  parent id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> findByParentId(Long id) {
+        LOG.debug("Request to get Category by Parent id  : {}", id);
+        return categoryRepository.findAllByParentCategoryId(id).stream().map(categoryMapper::toDto).toList();
+    }
+
+    /**
      * Delete the category by id.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Category : {}", id);
-        categoryRepository.deleteById(id);
+        if (categoryRepository.findById(id).isPresent()) {
+            if (categoryRepository.findById(id).get().getChildCategories().isEmpty())
+                categoryRepository.deleteById(id);
+            else {
+                categoryRepository.findById(id).get().getChildCategories().stream().forEach(childCategory -> {
+                    updateChildrenToOrphans(childCategory);
+                });
+                categoryRepository.deleteById(id);
+            }
+        }
     }
+
+    public void updateChildrenToOrphans(Category category) {
+        category.setParentCategory(null);
+        categoryRepository.save(category);
+    }
+
+
 }

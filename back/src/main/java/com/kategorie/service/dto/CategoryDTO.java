@@ -3,7 +3,9 @@ package com.kategorie.service.dto;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A DTO for the {@link com.kategorie.domain.Category} entity.
@@ -20,6 +22,8 @@ public class CategoryDTO implements Serializable {
     private LocalDate creationDate;
 
     private CategoryDTO parentCategory;
+
+    private int numberOfChildren;
 
     public Long getId() {
         return id;
@@ -53,6 +57,14 @@ public class CategoryDTO implements Serializable {
         this.parentCategory = parentCategory;
     }
 
+    public int getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public void setNumberOfChildren(int numberOfChildren) {
+        this.numberOfChildren = numberOfChildren;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -81,7 +93,8 @@ public class CategoryDTO implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", creationDate='" + getCreationDate() + "'" +
-            ", parentCategory=" + getParentCategory() +
+            ", parentCategory=" + getParentCategory() + "'" +
+            ", numberOfChildren=" + getNumberOfChildren() + "'" +
             "}";
     }
 }
