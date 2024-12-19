@@ -1,0 +1,84 @@
+services:
+  db:
+    image: postgres
+    container_name: postgres-db
+    restart: always
+    network_mode: host
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: kategorie
+      POSTGRES_PASSWORD: kategorie
+    volumes:
+      - ./docker_volumes/postgres:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    network_mode: host
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: kategorie@dev.com
+      PGADMIN_DEFAULT_PASSWORD: kategorie
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+    user: '$UID:$GID'
+    volumes:
+      - ./docker_volumes/pgadmin:/var/lib/pgadmin
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    command: 'start-dev --import-realm'
+    network_mode: host
+    volumes:
+      - ./realm-config:/opt/keycloak/data/import
+      - ./realm-config/keycloak-health-check.sh:/opt/keycloak/health-check.sh
+    environment:
+      - KC_DB=dev-file
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_FEATURES=scripts
+      - KC_HTTP_PORT=9080
+      - KC_HTTPS_PORT=9443
+      - KC_HEALTH_ENABLED=true
+      - KC_HTTP_MANAGEMENT_PORT=9990
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - "9080:9080"
+      - "9443:9443"
+    healthcheck:
+      test: 'bash /opt/keycloak/health-check.sh'
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 10s
+
+  back:
+    build:
+     context: ./back
+     dockerfile: Dockerfile
+    container_name: back
+    restart: always
+    network_mode: host
+    depends_on:
+      - db
+      - keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      LOGGING_LEVEL_ROOT: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://localhost:9080/realms/jhipster
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/kategorie
+      SPRING_DATASOURCE_USER: kategorie
+      SPRING_DATASOURCE_PASSWORD: kategorie
+  front:
+    container_name: kategorie-front
+    network_mode: host
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
