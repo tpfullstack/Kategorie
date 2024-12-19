@@ -43,30 +43,30 @@ export class CategoriesComponent implements OnInit {
       },
       (error) => {
         console.error('Error fetching categories:', error);
-        Swal.fire('Error', 'Failed to load categories', 'error');
+        Swal.fire('Error', 'Erreur de chargement des catégories', 'error');
       }
     );
   }
 
   deleteCategory(id: number) {
     Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: 'Etes vous sûr ?',
+      text: "Cette action est irreversible",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#016017',
       cancelButtonColor: '#8a0613',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Oui'
     }).then((result) => {
       if (result.isConfirmed) {
         this.categoriesService.deleteCategory(id).subscribe(
           () => {
             this.categories = this.categories.filter(c => c.id !== id);
-            Swal.fire('Deleted!', 'The category has been deleted.', 'success');
+            Swal.fire('Deleted!', 'Catégorie a été supprimée.', 'success');
           },
           (error) => {
             console.error('Error deleting category:', error);
-            Swal.fire('Error!', 'Failed to delete the category.', 'error');
+            Swal.fire('Error!', 'Impossible de suprimmer cette catégorie', 'error');
           }
         );
       }
@@ -90,7 +90,7 @@ export class CategoriesComponent implements OnInit {
       },
       (error) => {
         console.error('Error fetching children:', error);
-        Swal.fire('Error', 'Failed to fetch category children', 'error');
+        Swal.fire('Error', 'Erreur de chargement des catégories enfants', 'error');
       }
     );
   }
