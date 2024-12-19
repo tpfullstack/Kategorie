@@ -5,11 +5,9 @@ import com.kategorie.domain.Category;
 import com.kategorie.domain.Category_;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class CategorySpecs {
 
