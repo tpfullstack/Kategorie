@@ -68,11 +68,11 @@ export class UpdateCategorieComponent implements OnInit {
 
   deleteCategory() {
     Swal.fire({
-      title: 'Are you sure?',
+      title: 'Etes vous sûr ?',
       showCancelButton: true,
       confirmButtonColor: '#016017',
       cancelButtonColor: '#8a0613',
-      confirmButtonText: 'Yes'
+      confirmButtonText: 'Oui'
     }).then((result) => {
       if (result.isConfirmed) {
         this.service.deleteCategory(this.categorieId).subscribe(
@@ -102,7 +102,7 @@ export class UpdateCategorieComponent implements OnInit {
           Swal.fire({
             position: 'center',
             icon: 'success',
-            title: 'Category has been Updated',
+            title: 'La catégorie a été mise à jour',
             confirmButtonColor: '#016017',
           });
           this.router.navigateByUrl("categories");
@@ -110,14 +110,14 @@ export class UpdateCategorieComponent implements OnInit {
         (error) => {
           console.error('Error updating category:', error);
           Swal.fire({
-            text: "Error, can't update.",
+            text: "Erreur de mise à jour",
             confirmButtonColor: '#8a0613',
           });
         }
       );
     } else {
       Swal.fire({
-        text: "Please fill in all required fields correctly.",
+        text: "Veuillez remplir les champs correctement",
         confirmButtonColor: '#8a0613',
       });
     }

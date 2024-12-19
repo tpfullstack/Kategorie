@@ -6,7 +6,7 @@ import { Observable, from, of, switchMap } from 'rxjs';
 export interface CategoryDTO {
   id: number;
   name: string;
-  creationDate?: string; // ISO date string
+  creationDate?: string;
   parentCategory?: CategoryDTO;
   children?: CategoryDTO[];
   numberOfChildren?: number;

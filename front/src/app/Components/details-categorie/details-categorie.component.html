@@ -1,21 +1,21 @@
 <div class="p-3">
-  <h1 class="text-brown">Category Details</h1>
+  <h1 class="text-brown">Détails de la catégorie</h1>
   <form class="w-75 m-auto" [formGroup]="categorieForm">
     <div class="mb-3">
-      <label for="name" class="form-label">Name</label>
+      <label for="name" class="form-label">Nom</label>
       <input formControlName="name" type="text" id="name" class="form-control" [disabled]="true">
     </div>
     <div class="mb-3">
-      <label for="parentCategory" class="form-label">Parent Category</label>
+      <label for="parentCategory" class="form-label">Catégorie parente</label>
       <input formControlName="parentCategory" type="text" id="parentCategory" class="form-control" [disabled]="true">
     </div>
     <div class="mb-3">
-      <label for="creationDate" class="form-label">Creation Date</label>
+      <label for="creationDate" class="form-label">Date de création</label>
       <input formControlName="creationDate" type="date" id="creationDate" class="form-control" [disabled]="true">
     </div>
     <div class="d-flex justify-content-center gap-4 mt-4">
-      <button type="button" class="btn btn-primary" [routerLink]="['/update', categorieId]">Update</button>
-      <button type="button" class="btn btn-danger" (click)="deleteCategory()">Delete</button>
+      <button type="button" class="btn btn-primary" [routerLink]="['/update', categorieId]">Modifier</button>
+      <button type="button" class="btn btn-danger" (click)="deleteCategory()">Supprimer</button>
     </div>
   </form>
 </div>

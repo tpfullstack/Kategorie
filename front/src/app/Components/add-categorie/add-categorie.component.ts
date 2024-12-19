@@ -60,7 +60,7 @@ export class AddCategorieComponent implements OnInit {
           Swal.fire({
             position: 'center',
             icon: 'success',
-            title: 'Category has been Added',
+            title: 'La catégorie a été ajouté avec success ',
             confirmButtonColor: '#016017',
           });
           this.router.navigateByUrl("categories");
@@ -68,14 +68,14 @@ export class AddCategorieComponent implements OnInit {
         (error) => {
           console.error('Error adding category:', error);
           Swal.fire({
-            text: "Error, can't add category.",
+            text: "Erreur lors de l'ajout",
             confirmButtonColor: '#8a0613',
           });
         }
       );
     } else {
       Swal.fire({
-        text: "Please fill in all required fields.",
+        text: "Veuillez remplir les champs correctement",
         confirmButtonColor: '#8a0613',
       });
     }
