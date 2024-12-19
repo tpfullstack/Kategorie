@@ -9,6 +9,7 @@ services:
     environment:
       POSTGRES_USER: kategorie
       POSTGRES_PASSWORD: kategorie
+      POSTGRES_DB: kategorie
     volumes:
       - ./docker_volumes/postgres:/var/lib/postgresql/data
 
