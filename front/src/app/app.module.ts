@@ -27,7 +27,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
         clientId: 'front'
       },
       initOptions: {
-        onLoad: 'login-required',
+        onLoad: 'check-sso',
       }
     });
 }

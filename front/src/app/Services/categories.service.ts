@@ -33,25 +33,18 @@ export class CategoriesService {
   }
 
   getAllCategories(params: any): Observable<CategoryDTO[]> {
-    return this.getAuthHeaders().pipe(
-      switchMap(headers => {
-        let httpParams = new HttpParams();
-        Object.keys(params).forEach(key => {
-          if (params[key] != null) {
-            httpParams = httpParams.set(key, params[key].toString());
-          }
-        });
-        return this.http.get<CategoryDTO[]>(this.apiUrl, { headers, params: httpParams });
-      })
-    );
+    let httpParams = new HttpParams();
+    Object.keys(params).forEach(key => {
+      if (params[key] != null) {
+        httpParams = httpParams.set(key, params[key].toString());
+      }
+    });
+  
+    return this.http.get<CategoryDTO[]>(this.apiUrl, { params: httpParams });
   }
 
   getCategoryById(id: number): Observable<CategoryDTO> {
-    return this.getAuthHeaders().pipe(
-      switchMap(headers => {
-        return this.http.get<CategoryDTO>(`${this.apiUrl}/${id}`, { headers });
-      })
-    );
+    return this.http.get<CategoryDTO>(`${this.apiUrl}/${id}`);
   }
 
   addCategory(category: Omit<CategoryDTO, 'id'>): Observable<CategoryDTO> {
@@ -79,10 +72,7 @@ export class CategoriesService {
   }
 
   getCategoryChildren(id: number): Observable<CategoryDTO[]> {
-    return this.getAuthHeaders().pipe(
-      switchMap(headers => {
-        return this.http.get<CategoryDTO[]>(`${this.apiUrl}/${id}/children`, { headers });
-      })
-    );
+    return this.http.get<CategoryDTO[]>(`${this.apiUrl}/${id}/children`);
   }
+  
 }
