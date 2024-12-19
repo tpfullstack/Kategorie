@@ -23,7 +23,8 @@ export class AuthService {
     return this.keycloak.isLoggedIn();
   }
 
-  public getToken(): Promise<string> {
+  public async getToken(): Promise<string> {
+    await this.keycloak.updateToken(10); 
     return this.keycloak.getToken();
   }
 
