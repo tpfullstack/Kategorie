@@ -64,12 +64,19 @@ export class CategoriesService {
   }
 
   deleteCategory(id: number): Observable<void> {
+    if (!this.authService.isLoggedIn()) {
+      // Redirige si l'utilisateur n'est pas connecté
+      this.authService.login();
+      return of(); // Renvoie un Observable vide
+    }
+  
     return this.getAuthHeaders().pipe(
       switchMap(headers => {
         return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
       })
     );
   }
+  
 
   getCategoryChildren(id: number): Observable<CategoryDTO[]> {
     return this.http.get<CategoryDTO[]>(`${this.apiUrl}/${id}/children`);

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CategoriesService, CategoryDTO } from '../../Services/categories.service';
 import Swal from 'sweetalert2';
 import { forkJoin } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
+
 
 @Component({
   selector: 'app-categories',
@@ -19,7 +21,7 @@ export class CategoriesComponent implements OnInit {
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -49,6 +51,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   deleteCategory(id: number) {
+    if (this.authService.isLoggedIn()) {
     Swal.fire({
       title: 'Etes vous sûr ?',
       text: "Cette action est irreversible",
@@ -70,7 +73,9 @@ export class CategoriesComponent implements OnInit {
           }
         );
       }
-    });
+    }); }
+
+    else (this.authService.login())
   }
 
   applyFilter() {

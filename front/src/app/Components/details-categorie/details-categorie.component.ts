@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CategoriesService, CategoryDTO } from '../../Services/categories.service';
 import Swal from 'sweetalert2';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-details-categorie',
@@ -18,7 +19,8 @@ export class DetailsCategorieComponent implements OnInit {
     private categoriesService: CategoriesService,
     public router: Router,
     private formBuilder: FormBuilder,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -58,27 +60,32 @@ export class DetailsCategorieComponent implements OnInit {
   }
 
   deleteCategory() {
-    Swal.fire({
-      title: 'Etes vous sûr ?',
-      text: "Cette action est irreversible",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#016017',
-      cancelButtonColor: '#8a0613',
-      confirmButtonText: 'Oui'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.categoriesService.deleteCategory(this.categorieId).subscribe(
-          () => {
-            Swal.fire('Deleted!', 'La catégirie a été supprimée', 'success');
-            this.router.navigate(['/categories']);
-          },
-          (error) => {
-            console.error('Error deleting category:', error);
-            Swal.fire('Error!', 'Impossible de supprimer la catégorie', 'error');
-          }
-        );
-      }
-    });
+    if (this.authService.isLoggedIn()) {
+      Swal.fire({
+        title: 'Etes vous sûr ?',
+        text: "Cette action est irreversible",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#016017',
+        cancelButtonColor: '#8a0613',
+        confirmButtonText: 'Oui'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.categoriesService.deleteCategory(this.categorieId).subscribe(
+            () => {
+              Swal.fire('Deleted!', 'La catégirie a été supprimée', 'success');
+              this.router.navigate(['/categories']);
+            },
+            (error) => {
+              console.error('Error deleting category:', error);
+              Swal.fire('Error!', 'Impossible de supprimer la catégorie', 'error');
+            }
+          );
+        }
+      });
+  }
+    else {
+      this.authService.login();
+    }
   }
 }
