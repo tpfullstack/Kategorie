@@ -10,6 +10,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper extends EntityMapper<CategoryDTO, Category> {
     @Mapping(target = "parentCategory", source = "parentCategory")
+    @Mapping(target = "numberOfChildren", source = "numberOfChildren")
     CategoryDTO toDto(Category s);
 
     @Named("categoryId")

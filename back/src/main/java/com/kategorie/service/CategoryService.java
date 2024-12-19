@@ -11,14 +11,17 @@ import java.util.List;
 import java.util.Optional;
 
 import com.kategorie.service.specs.CategorySpecs;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Service Implementation for managing {@link com.kategorie.domain.Category}.
@@ -61,6 +64,7 @@ public class CategoryService {
     public CategoryDTO update(CategoryDTO categoryDTO) {
         LOG.debug("Request to update Category : {}", categoryDTO);
         Category category = categoryMapper.toEntity(categoryDTO);
+        category.setCreationDate(categoryRepository.findById(categoryDTO.getId()).orElseThrow().getCreationDate());
         category = categoryRepository.save(category);
         return categoryMapper.toDto(category);
     }
@@ -103,14 +107,14 @@ public class CategoryService {
         }
 
         if (isRoot != null) {
-            specs = specs.and(CategorySpecs.getIsRootSpec());
+            specs = specs.and(CategorySpecs.getIsRootSpec(isRoot));
         }
 
         if (childCategories != null && childCategories.length > 0) {
             specs = specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
         }
 
-        if (!name.isBlank()) {
+        if (!StringUtils.isBlank(name)) {
             specs = specs.and(CategorySpecs.getNameSpec(name));
         }
         LOG.debug("Request to get all Categories");
@@ -130,12 +134,39 @@ public class CategoryService {
     }
 
     /**
+     * Get category children by  parent id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> findByParentId(Long id) {
+        LOG.debug("Request to get Category by Parent id  : {}", id);
+        return categoryRepository.findAllByParentCategoryId(id).stream().map(categoryMapper::toDto).toList();
+    }
+
+    /**
      * Delete the category by id.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Category : {}", id);
-        categoryRepository.deleteById(id);
+        if (categoryRepository.findById(id).isPresent()) {
+            if (categoryRepository.findById(id).orElseThrow(() ->
+                new HttpClientErrorException(HttpStatusCode.valueOf(404))).getChildCategories().isEmpty())
+                categoryRepository.deleteById(id);
+            else {
+                categoryRepository.findById(id).orElseThrow(() ->
+                    new HttpClientErrorException(HttpStatusCode.valueOf(404))).getChildCategories().
+                    forEach(this::updateChildrenToOrphans);
+                categoryRepository.deleteById(id);
+            }
+        }
+    }
+
+    public void updateChildrenToOrphans(Category category) {
+        category.setParentCategory(null);
+        categoryRepository.save(category);
     }
 }

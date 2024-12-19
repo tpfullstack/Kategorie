@@ -16,6 +16,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -70,6 +71,11 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/api/authenticate")).permitAll()
                     .requestMatchers(mvc.pattern("/api/auth-info")).permitAll()
                     .requestMatchers(mvc.pattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/categories/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/categories/**").authenticated()
+                    .requestMatchers(HttpMethod.PATCH, "/api/categories/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
                     .requestMatchers(mvc.pattern("/api/**")).authenticated()
                     .requestMatchers(mvc.pattern("/v3/api-docs/**")).permitAll()
                     .requestMatchers(mvc.pattern("/v3/**")).permitAll()

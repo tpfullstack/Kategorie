@@ -1,5 +1,6 @@
 package com.kategorie.web.rest;
 
+import com.kategorie.domain.Category;
 import com.kategorie.repository.CategoryRepository;
 import com.kategorie.service.CategoryService;
 import com.kategorie.service.dto.CategoryDTO;
@@ -11,6 +12,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -149,8 +151,12 @@ public class CategoryResource {
                                                               Long[] childCategories,
                                                               String name) {
         LOG.debug("REST request to get a page of Categories");
-        Page<CategoryDTO> page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, name.toLowerCase(Locale.ROOT), pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        Page<CategoryDTO> page;
+        if(!StringUtils.isBlank(name)) {
+        page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, name.toLowerCase(Locale.ROOT), pageable);}
+        else
+            page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories,name, pageable);
+    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -180,5 +186,31 @@ public class CategoryResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code GET  /categories/:id} : get the "id" category.
+     *
+     * @param id the id of the categoryDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the categoryDTO, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/entity/{id}")
+    public ResponseEntity<Category> getCategoryEntity(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Category : {}", id);
+        Optional<Category> categoryDTO = categoryRepository.findById(id);
+        return ResponseUtil.wrapOrNotFound(categoryDTO);
+    }
+
+    /**
+     * {@code GET  /categories/:id} : get the "id" category.
+     *
+     * @param id the id of the categoryDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the categoryDTO, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/{id}/children")
+    public ResponseEntity<List<CategoryDTO>> getCategoryChilds(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Category Childs : {}", id);
+        List<CategoryDTO> childCategoriesDTO = categoryService.findByParentId(id);
+        return ResponseEntity.ok(childCategoriesDTO);
     }
 }

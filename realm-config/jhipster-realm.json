@@ -418,15 +418,6 @@
       "realmRoles": ["ROLE_ADMIN"],
       "clientRoles": {},
       "subGroups": []
-    },
-    {
-      "id": "672767bb-4ab0-4d37-93a1-9b6c2416b6b2",
-      "name": "Users",
-      "path": "/Users",
-      "attributes": {},
-      "realmRoles": ["ROLE_USER"],
-      "clientRoles": {},
-      "subGroups": []
     }
   ],
   "defaultRole": {
@@ -438,7 +429,7 @@
     "containerId": "jhipster"
   },
   "requiredCredentials": ["password"],
-  "defaultGroups": ["/Users"],
+  "defaultGroups": ["/Admins"],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyInitialCounter": 0,
@@ -501,6 +492,61 @@
     ]
   },
   "clients": [
+    {
+      "id": "6d525d55-b4b2-4000-b6b1-277f310a408d",
+      "clientId": "front",
+      "name": "front",
+      "description": "",
+      "rootUrl": "http://kategorie-front:4200/",
+      "adminUrl": "http://kategorie-front:4200/",
+      "baseUrl": "http://kategorie-front:4200/",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "",
+        "http://localhost*",
+        "http://kategorie-front:4200/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "http://localhost:4200/*",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
     {
       "id": "6cc5a716-0880-47dc-b714-9a4967246b2f",
       "clientId": "account",
@@ -763,8 +809,8 @@
     {
       "id": "6e8deddb-b4d6-4e2e-b389-b397d3f74fcd",
       "clientId": "web_app",
-      "rootUrl": "http://localhost:8080",
-      "adminUrl": "http://localhost:8080",
+      "rootUrl": "http://back:8080",
+      "adminUrl": "http://back:8080",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -774,6 +820,10 @@
         "dev.localhost.ionic:*",
         "http://127.0.0.1:*",
         "http://localhost:*",
+	"http://back:8080/*",
+	"http://back:*",
+	"http://kategorie-front:*",
+	"http://kategorie-front:4200/*",
         "https://127.0.0.1:*",
         "https://localhost:*",
         "https://oauth.pstmn.io/v1/callback"
@@ -2249,35 +2299,7 @@
         "account": ["view-profile", "manage-account"]
       },
       "notBefore": 0,
-      "groups": ["/Admins", "/Users"]
-    },
-    {
-      "id": "c4af4e2f-b432-4c3b-8405-cca86cd5b97b",
-      "createdTimestamp": 1505479373742,
-      "username": "user",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": true,
-      "firstName": "",
-      "lastName": "User",
-      "email": "user@localhost",
-      "credentials": [
-        {
-          "id": "7821832b-1e82-45a2-b8d3-f1a6ad909e64",
-          "type": "password",
-          "createdDate": 1505479392766,
-          "secretData": "{\"value\":\"MbKsMgWPnZyImih8s4SaoCSCq+XIY/c6S9F93sXEidHF1TjPWxCqMkec0+o3860CMLXHt3az61cIJOWI0FW9aw==\",\"salt\":\"fmpBI1r8R1u75hDLMUlwBw==\"}",
-          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
-        }
-      ],
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": ["offline_access", "uma_authorization"],
-      "clientRoles": {
-        "account": ["view-profile", "manage-account"]
-      },
-      "notBefore": 0,
-      "groups": ["/Users"]
+      "groups": ["/Admins"]
     }
   ]
 }
