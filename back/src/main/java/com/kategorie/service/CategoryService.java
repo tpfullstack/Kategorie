@@ -7,6 +7,7 @@ import com.kategorie.service.mapper.CategoryMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,7 +83,6 @@ public class CategoryService {
             .findById(categoryDTO.getId())
             .map(existingCategory -> {
                 categoryMapper.partialUpdate(existingCategory, categoryDTO);
-
                 return existingCategory;
             })
             .map(categoryRepository::save)
@@ -96,29 +96,33 @@ public class CategoryService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> findAll(LocalDate createdAfter, LocalDate createdBefore, Boolean isRoot, Long[] childCategories,
-                                     String name, Pageable pageable) {
+    public Page<CategoryDTO> findAll(LocalDate createdAfter, LocalDate createdBefore, Boolean isRoot, String name, Pageable pageable) {
+        LOG.debug("Request to get all Categories");
         Specification<Category> specs = Specification.where(null);
-        if (createdAfter != null) {
-            if (createdBefore != null) {
-                specs = specs.and(CategorySpecs.getBetweenDates(createdAfter, createdBefore));
-            }
-            else specs = specs.and(CategorySpecs.getBetweenDates(createdAfter, LocalDate.now()));
-        }
 
+        // Filter by dates
+        if (createdAfter != null && createdBefore != null) specs = specs.
+            and(CategorySpecs.getBetweenDates(createdAfter, createdBefore));
+        if (createdAfter == null && createdBefore != null) specs = specs.
+            and(CategorySpecs.getBetweenDates(LocalDate.EPOCH, createdBefore));
+        if (createdAfter != null && createdBefore == null) specs = specs.
+            and(CategorySpecs.getBetweenDates(createdAfter, LocalDate.now()));
+
+        // Filter by ROOT AND NON ROOT
         if (isRoot != null) {
             specs = specs.and(CategorySpecs.getIsRootSpec(isRoot));
         }
 
-        if (childCategories != null && childCategories.length > 0) {
-            specs = specs.and(CategorySpecs.getChildCategoriesSpecs(childCategories));
-        }
-
+        // Recherche par nom
         if (!StringUtils.isBlank(name)) {
             specs = specs.and(CategorySpecs.getNameSpec(name));
         }
-        LOG.debug("Request to get all Categories");
-        return categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
+
+        Page<CategoryDTO> page = categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
+        page.forEach((categoryDTO) -> {
+            categoryDTO.setChildren(new HashSet<>(findByParentId(categoryDTO.getId())));
+        });
+        return page;
     }
 
     /**

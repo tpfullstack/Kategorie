@@ -41,7 +41,7 @@ export class CategoriesComponent implements OnInit {
     this.categoriesService.getAllCategories(params).subscribe(
       (data: CategoryDTO[]) => {
         this.categories = data;
-        this.fetchChildrenForCategories();
+        //this.fetchChildrenForCategories();
       },
       (error) => {
         console.error('Error fetching categories:', error);
@@ -81,23 +81,6 @@ export class CategoriesComponent implements OnInit {
   applyFilter() {
     this.currentPage = 0;
     this.loadCategories();
-  }
-
-  fetchChildrenForCategories() {
-    const childrenRequests = this.categories.map(category => 
-      this.categoriesService.getCategoryChildren(category.id!)
-    );
-    forkJoin(childrenRequests).subscribe(
-      (childrenArrays: CategoryDTO[][]) => {
-        this.categories.forEach((category, index) => {
-          category.children = childrenArrays[index];
-        });
-      },
-      (error) => {
-        console.error('Error fetching children:', error);
-        Swal.fire('Error', 'Erreur de chargement des catégories enfants', 'error');
-      }
-    );
   }
 
   sortBy(column: string) {
