@@ -23,6 +23,8 @@ public class CategoryDTO implements Serializable {
 
     private CategoryDTO parentCategory;
 
+    private Set<CategoryDTO> children = new HashSet<>();
+
     private int numberOfChildren;
 
     public Long getId() {
@@ -63,6 +65,14 @@ public class CategoryDTO implements Serializable {
 
     public void setNumberOfChildren(int numberOfChildren) {
         this.numberOfChildren = numberOfChildren;
+    }
+
+    public Set<CategoryDTO> getChildren() {
+        return children;
+    }
+
+    public void setChildren(Set<CategoryDTO> children) {
+        this.children = children;
     }
 
     @Override
