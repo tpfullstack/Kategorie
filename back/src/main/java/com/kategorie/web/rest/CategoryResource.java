@@ -186,30 +186,4 @@ public class CategoryResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
-
-    /**
-     * {@code GET  /categories/:id} : get the "id" category.
-     *
-     * @param id the id of the categoryDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the categoryDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/entity/{id}")
-    public ResponseEntity<Category> getCategoryEntity(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get Category : {}", id);
-        Optional<Category> categoryDTO = categoryRepository.findById(id);
-        return ResponseUtil.wrapOrNotFound(categoryDTO);
-    }
-
-    /**
-     * {@code GET  /categories/:id} : get the "id" category.
-     *
-     * @param id the id of the categoryDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the categoryDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/{id}/children")
-    public ResponseEntity<List<CategoryDTO>> getCategoryChilds(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get Category Childs : {}", id);
-        List<CategoryDTO> childCategoriesDTO = categoryService.findByParentId(id);
-        return ResponseEntity.ok(childCategoriesDTO);
-    }
 }

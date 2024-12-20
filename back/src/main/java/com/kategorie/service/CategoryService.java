@@ -7,6 +7,7 @@ import com.kategorie.service.mapper.CategoryMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,7 +117,12 @@ public class CategoryService {
         if (!StringUtils.isBlank(name)) {
             specs = specs.and(CategorySpecs.getNameSpec(name));
         }
-        return categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
+
+        Page<CategoryDTO> page = categoryRepository.findAll(specs,pageable).map(categoryMapper::toDto);
+        page.forEach((categoryDTO) -> {
+            categoryDTO.setChildren(new HashSet<>(findByParentId(categoryDTO.getId())));
+        });
+        return page;
     }
 
     /**

@@ -77,9 +77,4 @@ export class CategoriesService {
     );
   }
   
-
-  getCategoryChildren(id: number): Observable<CategoryDTO[]> {
-    return this.http.get<CategoryDTO[]>(`${this.apiUrl}/${id}/children`);
-  }
-  
 }
