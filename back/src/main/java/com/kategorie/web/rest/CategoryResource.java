@@ -148,15 +148,14 @@ public class CategoryResource {
                                                               LocalDate createdAfter,
                                                               LocalDate createdBefore,
                                                               Boolean isRoot,
-                                                              Long[] childCategories,
                                                               String name) {
         LOG.debug("REST request to get a page of Categories");
         Page<CategoryDTO> page;
         if(!StringUtils.isBlank(name)) {
-        page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories, name.toLowerCase(Locale.ROOT), pageable);}
+        page = categoryService.findAll(createdAfter, createdBefore, isRoot, name.toLowerCase(Locale.ROOT), pageable);}
         else
-            page = categoryService.findAll(createdAfter, createdBefore, isRoot, childCategories,name, pageable);
-    HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            page = categoryService.findAll(createdAfter, createdBefore, isRoot,name, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
